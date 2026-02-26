@@ -13,6 +13,7 @@ object Main {
       .option("header", "true")
       .option("inferSchema", "true")
       .csv("data/Accident_Information.csv")
+      
 
     println("Schema:")
     df.printSchema()
@@ -21,10 +22,11 @@ object Main {
     val cleanedDf = Cleaning.run(df)
 
     // احفظ الناتج
+    cleanedDf.repartition(1)
     cleanedDf.write
       .mode("overwrite")
       .option("header", "true")
-      .csv("output/cleaned_data")
+      .csv("c:/Users/lamya/Downloads/data")
 
     println("Cleaning completed successfully ✅")
 
