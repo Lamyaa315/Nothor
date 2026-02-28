@@ -1,0 +1,23 @@
+[0m[[0m[0mdebug[0m] [0m[0mPackaging C:\Users\tarfh\Nothor\target\scala-2.12\nothor_2.12-1.0.jar ...[0m
+[0m[[0m[0mdebug[0m] [0m[0mInput file mappings:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Main$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\Main$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Main.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\Main.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	preprocessing[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\preprocessing[0m
+[0m[[0m[0mdebug[0m] [0m[0m	preprocessing\Cleaning$$anonfun$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\preprocessing\Cleaning$$anonfun$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	preprocessing\Cleaning$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\preprocessing\Cleaning$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	preprocessing\Cleaning.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\preprocessing\Cleaning.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	preprocessing\Reduction$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\preprocessing\Reduction$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	preprocessing\Reduction.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\preprocessing\Reduction.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	preprocessing\Transformation$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\preprocessing\Transformation$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	preprocessing\Transformation.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  C:\Users\tarfh\Nothor\target\scala-2.12\classes\preprocessing\Transformation.class[0m
+[0m[[0m[0mdebug[0m] [0m[0mDone packaging.[0m

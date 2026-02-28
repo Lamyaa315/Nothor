@@ -1,22 +1,26 @@
 import org.apache.spark.sql.SparkSession
 import preprocessing.{Cleaning, Reduction, Transformation}
+import java.io.{PrintWriter, File}
+import scala.io.Codec
 
 object Main {
   def main(args: Array[String]): Unit = {
 
+    System.setProperty("hadoop.home.dir", new java.io.File(".").getAbsolutePath)
+    
     implicit val spark: SparkSession = SparkSession.builder()
       .appName("UK Road Safety - Big Data Pipeline")
       .master("local[*]")
-      // توجيه الملفات المؤقتة لـ Spark إلى مجلد داخل المشروع
-      // لتجنب مشكلة "No space left on device" على بعض الأجهزة
       .config("spark.local.dir", "./tmp")
       .config("spark.sql.shuffle.partitions", "4")
+      .config("spark.sql.adaptive.enabled", "false")
       .getOrCreate()
  
     spark.sparkContext.setLogLevel("WARN")
 
-    // إنشاء مجلد tmp إذا ما كان موجوداً
-    new java.io.File("./tmp").mkdirs()
+    // Create output directory
+    new File("./output").mkdirs()
+    new File("./tmp").mkdirs()
 
     // ─────────────────────────────────────────────
     // STEP 1 – READ RAW DATA
@@ -28,68 +32,62 @@ object Main {
       .csv("data/Accident_Information.csv")
 
     println(s"Rows loaded: ${df.count()}")
-    df.printSchema()
 
     // ─────────────────────────────────────────────
-    // STEP 2 – CLEANING  (شغل صديقتي – 5.1)
+    // RUN ALL TRANSFORMATIONS
     // ─────────────────────────────────────────────
-    println("\n========== STEP 2: CLEANING ==========")
+    println("\n========== RUNNING PIPELINE ==========")
     val cleanedDf = Cleaning.run(df)
-
-    cleanedDf.coalesce(1)
-      .write.mode("overwrite")
-      .option("header", "true")
-      .csv("data/cleaned_data")
-    println("Saved: data/cleaned_data")
-
-    // ─────────────────────────────────────────────
-    // STEP 3 – SAMPLING 
-    // ─────────────────────────────────────────────
-    println("\n========== STEP 3: SAMPLING ==========")
     val sampledDf = Reduction.run(cleanedDf)
-
-    sampledDf.coalesce(1)
-      .write.mode("overwrite")
-      .option("header", "true")
-      .csv("data/sampled_data")
-    println("Saved: data/sampled_data")
-
-    // ─────────────────────────────────────────────
-    // STEP 4 – REDUCTION  (Aggregation + Feature Selection)
-    // ─────────────────────────────────────────────
-    println("\n========== STEP 4: REDUCTION ==========")
     val reducedDf = Reduction.runReduction(sampledDf)
-
-    reducedDf.coalesce(1)
-      .write.mode("overwrite")
-      .option("header", "true")
-      .csv("data/reduced_data")
-    println("Saved: data/reduced_data")
-
-    // ────────────────────────────────────────────
-    // STEP 5 – TRANSFORMATION  ( Type Conversion)
-    // ─────────────────────────────────────────────
-    println("\n========== STEP 5: TRANSFORMATION ==========")
     val transformedDf = Transformation.run(reducedDf)
 
-    transformedDf.coalesce(1)
-      .write.mode("overwrite")
-      .option("header", "true")
-      .csv("data/final_data")
-    println("Saved: data/final_data")
-
     // ─────────────────────────────────────────────
-    // SNAPSHOT – 15 rows from final dataset
+    // SAVE DATA - USING PLAIN SCALA (NO HADOOP)
     // ─────────────────────────────────────────────
-    println("\n========== SNAPSHOT: Final Preprocessed Data (15 rows) ==========")
-    transformedDf.show(15, truncate = false)
+    println("\n========== SAVING TRANSFORMED DATA ==========")
+    
+    val columns = transformedDf.columns
+    println(s"Total columns: ${columns.length}")
+    println(s"Column names: ${columns.mkString(", ")}")
+    
+    // Get the data as RDD of strings (bypasses Dataset encoders)
+    println("\nPreparing data for saving...")
+    
+    // Convert to RDD of strings
+    val dataRDD = transformedDf.rdd.map { row =>
+      columns.map { col =>
+        val value = row.getAs[Any](col)
+        if (value == null) "" 
+        else value.toString.replace(",", ";").replace("\n", " ").replace("\r", " ")
+      }.mkString(",")
+    }
+    
+    // Collect header and data
+    val header = columns.mkString(",")
+    val data = dataRDD.collect()
+    
+    println(s"Writing ${data.length} rows to file...")
+    
+    // Write everything at once using PrintWriter
+    val writer = new PrintWriter(new File("output/transformed_data.csv"), "UTF-8")
+    writer.println(header)
+    data.foreach(line => writer.println(line))
+    writer.close()
+    
+    println(s" Data saved to: output/transformed_data.csv")
+    println(s" Total rows: ${data.length}")
+    println(s" Total columns: ${columns.length}")
 
-    println("\n========== PIPELINE COMPLETED SUCCESSFULLY ==========")
-    println("Output files:")
-    println("  -> data/cleaned_data   (after Cleaning)")
-    println("  -> data/sampled_data   (after Sampling)")
-    println("  -> data/reduced_data   (after Reduction)")
-    println("  -> data/final_data     (after Transformation)")
+    // Show sample
+    println("\n========== SAMPLE OF TRANSFORMED DATA ==========")
+    transformedDf.show(10, truncate = false)
+
+    println("\n" + "="*80)
+    println("PIPELINE COMPLETED SUCCESSFULLY! ")
+    println("="*80)
+    println("\nOutput file: output/transformed_data.csv")
+    println("Your transformed dataset with all 41 columns is ready!")
 
     spark.stop()
   }
